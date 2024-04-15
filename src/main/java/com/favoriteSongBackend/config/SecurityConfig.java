@@ -57,7 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers(PathRequest.toH2Console()).permitAll()              //h2 console 관련 security 허용
-                                .requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/auth/**", "/oauth2/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
