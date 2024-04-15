@@ -13,6 +13,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,13 +30,23 @@ public class TokenProvider implements InitializingBean {
     private final String secret;
     private final long tokenValidityInSeconds;
 
+    //refresh token 만료시간
+    private long refreshTokenValidityInMilliseconds;
+
     private Key key;
 
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            @Value("${jwt.refresh-token-validity-in-seconds}") long refreshTokenValidityInMilliseconds) {
         this.secret = secret;
         this.tokenValidityInSeconds = tokenValidityInSeconds * 1000;
+        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInMilliseconds * 1000;
+    }
+
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
     @Override
@@ -53,10 +65,26 @@ public class TokenProvider implements InitializingBean {
         Date validity = new Date(now + this.tokenValidityInSeconds);        //만료시간 설정
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
+                .expiration(validity)
+                .signWith(this.getSigningKey())
+                .compact();
+    }
+
+    public String createRefreshToken(Authentication authentication){
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);        //만료시간 설정
+
+        return Jwts.builder()
+                .subject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
+                .expiration(validity)
+                .signWith(this.getSigningKey())
                 .compact();
     }
 
@@ -64,10 +92,10 @@ public class TokenProvider implements InitializingBean {
     public Authentication getAuthentication(String token){
         Claims claims = Jwts
                 .parser()
-                .setSigningKey(key)
+                .verifyWith(this.getSigningKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))

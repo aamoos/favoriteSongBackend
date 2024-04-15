@@ -4,6 +4,9 @@ import com.favoriteSongBackend.jwt.JwtAccessDeniedHandler;
 import com.favoriteSongBackend.jwt.JwtAuthenticationEntryPoint;
 import com.favoriteSongBackend.jwt.JwtSecurityConfig;
 import com.favoriteSongBackend.jwt.TokenProvider;
+import com.favoriteSongBackend.oauth2.CustomOAuth2UserService;
+import com.favoriteSongBackend.oauth2.OAuth2AuthenticationFailureHandler;
+import com.favoriteSongBackend.oauth2.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -25,11 +28,15 @@ public class SecurityConfig {
     private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+    private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
 
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -50,10 +57,16 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers(PathRequest.toH2Console()).permitAll()              //h2 console 관련 security 허용
-                                .requestMatchers("/szs/signup", "/szs/login", "/3o3/swagger.html", "/3o3/swagger-ui/**", "/api-docs/**").permitAll()
+                                .requestMatchers("/auth/**").permitAll()
                                 .anyRequest().authenticated()
                 )
-
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                )
                 .with(new JwtSecurityConfig(tokenProvider), customizer -> {
                 });
 
