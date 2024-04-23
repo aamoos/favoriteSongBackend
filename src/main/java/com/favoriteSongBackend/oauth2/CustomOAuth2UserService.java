@@ -68,23 +68,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Users userInfo = attributes.toEntity();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        String socialId = "";
-
-        if ("kakao".equals(registrationId)) {
-            socialId = String.valueOf(attributes.getAttributes().get("id"));
-        } else if ("naver".equals(registrationId)) {
-            LinkedHashMap map = (LinkedHashMap) attributes.getAttributes().get("response");
-            socialId = String.valueOf(map.get("id"));
-        } else if ("google".equals(registrationId)) {
-            Map map = attributes.getAttributes();
-            socialId = String.valueOf(map.get("sub"));
-        }
-
         //임시비멀번호, social id 설정
-        userInfo = Users.builder()
-                .password(userInfo.getUserId())
-                .socialId(socialId)
-                .build();
+        userInfo.changePassword(passwordEncoder.encode(userInfo.getUserId()));
 
         //저장
         userRepository.save(userInfo);

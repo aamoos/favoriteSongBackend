@@ -50,33 +50,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         Optional<String> redirectUri = CookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
-        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-        Map map = defaultOAuth2User.getAttributes();
+        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) auth.getPrincipal();
 
-        String socialId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-        String id = "";
-        if("kakao".equals(socialId)){
-            id = String.valueOf(map.get("id"));
-        }else if("naver".equals(socialId)){
-            LinkedHashMap naverMap = (LinkedHashMap) map.get("response");
-            id = String.valueOf(naverMap.get("id"));
-        }else if("google".equals(socialId)){
-            id = String.valueOf(map.get("sub"));
-        }
-
-        Optional<Users> optionalUser = userRepository.findBySocialId(id);
         String token = "";
         String refreshToken = "";
 
-        optionalUser.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
-        Authentication auth = (Authentication) optionalUser.get();
         token = tokenProvider.createToken(auth);
         refreshToken = tokenProvider.createRefreshToken(auth);
 

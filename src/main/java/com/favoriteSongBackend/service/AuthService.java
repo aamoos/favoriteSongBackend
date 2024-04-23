@@ -37,8 +37,7 @@ public class AuthService {
         Users user = Users.builder()
                 .userId(request.getUserId())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .name(request.getName())
-                .regNo(request.getRegNo())
+                .userName(request.getUserName())
                 .authorities(Collections.singleton(authority))
                 .activated(true)
                 .build();
