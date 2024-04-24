@@ -13,6 +13,7 @@ public class SignupDto {
         private String userId;              //사용자 아이디
         private String password;            //사용자 비밀번호
         private String userName;            //사용자 이름
+        private String checkCode;           //인증번호
     }
 
     @Data

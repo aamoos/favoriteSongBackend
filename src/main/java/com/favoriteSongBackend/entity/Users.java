@@ -29,6 +29,7 @@ public class Users {
 
     private boolean activated;          //활성화 여부
 
+    //패스워드 변경
     public void changePassword(String password){
         this.password = password;
     }

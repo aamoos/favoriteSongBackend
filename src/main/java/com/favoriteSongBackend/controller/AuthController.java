@@ -14,13 +14,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/auth")
 public class AuthController {
 
     private final TokenProvider tokenProvider;
@@ -46,8 +46,20 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupDto.Response> signUp(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> signUp(@RequestBody SignupDto.Request request){
         return ResponseEntity.ok(authService.signup(request));
+    }
+
+    //중복회원 체크
+    @PostMapping("/signupCheck")
+    public ResponseEntity<Boolean> signUpCheck(@RequestBody SignupDto.Request request){
+        return ResponseEntity.ok(authService.signupCheck(request));
+    }
+
+    //이메일 발송
+    @PostMapping("/sendEmail")
+    public void sendEmail(@RequestBody SignupDto.Request request) throws Exception {
+        authService.sendEmail(request.getUserId());
     }
 
 }
