@@ -56,8 +56,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
 
-        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) auth.getPrincipal();
-
         String token = "";
         String refreshToken = "";
 

@@ -11,10 +11,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+
+import java.util.*;
 
 
 @RequiredArgsConstructor
@@ -69,11 +67,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         //임시비멀번호, social id 설정
-        userInfo.changePassword(passwordEncoder.encode(userInfo.getUserId()));
+        userInfo.changePassword(passwordEncoder.encode(alphaNumericString(10)));
 
         //저장
         userRepository.save(userInfo);
         return userInfo;
+    }
+
+    private static String alphaNumericString(int len) {
+        String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        Random rnd = new Random();
+
+        StringBuilder sb = new StringBuilder(len);
+        for (int i = 0; i < len; i++) {
+            sb.append(AB.charAt(rnd.nextInt(AB.length())));
+        }
+        return sb.toString();
     }
 
 }
