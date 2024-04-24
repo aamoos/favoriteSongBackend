@@ -5,6 +5,8 @@ import com.favoriteSongBackend.dto.SignupDto;
 import com.favoriteSongBackend.entity.Authority;
 import com.favoriteSongBackend.entity.Email;
 import com.favoriteSongBackend.entity.Users;
+import com.favoriteSongBackend.exception.CustomException;
+import com.favoriteSongBackend.exception.ErrorCode;
 import com.favoriteSongBackend.repository.EmailRepository;
 import com.favoriteSongBackend.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
@@ -45,14 +47,14 @@ public class AuthService {
     @Transactional
     public SignupDto.Response signup(SignupDto.Request request) {
         if (userRepository.findByUserId(request.getUserId()).orElse(null) != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 가입되어 있는 유저입니다.");
+            throw new CustomException(ErrorCode.CONFLICT);
         }
 
         Email email = emailRepository.findFirstByUserIdOrderByCreatedDateDesc(request.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "임시비밀번호가 없습니다."));
 
         //임시비밀번호가 같지않는경우
         if(!email.getCheckCode().equals(request.getCheckCode())){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "임시비밀번호가 틀립니다. 다시 입력해주세요.");
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
 
         Authority authority = Authority.builder()
@@ -71,8 +73,12 @@ public class AuthService {
     }
     
     //가입되어있는 유저인지 체크
-    public Boolean signupCheck(SignupDto.Request request){
-        return userRepository.findByUserId(request.getUserId()).orElse(null) == null;
+    public ResponseEntity<?> signupCheck(SignupDto.Request request){
+
+        if (userRepository.findByUserId(request.getUserId()).orElse(null) != null) {
+            throw new CustomException(ErrorCode.CONFLICT);
+        }
+        return ResponseEntity.ok(userRepository.findByUserId(request.getUserId()).orElse(null) == null);
     }
 
     //임시비밀번호 발송

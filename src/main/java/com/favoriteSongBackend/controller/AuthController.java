@@ -52,7 +52,7 @@ public class AuthController {
 
     //중복회원 체크
     @PostMapping("/signupCheck")
-    public ResponseEntity<Boolean> signUpCheck(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> signUpCheck(@RequestBody SignupDto.Request request){
         return ResponseEntity.ok(authService.signupCheck(request));
     }
 
