@@ -64,12 +64,10 @@ public class TokenProvider implements InitializingBean {
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInSeconds);        //만료시간 설정
-        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
         return Jwts.builder()
                 .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .claim("userId", (String) defaultOAuth2User.getAttributes().get("email"))
                 .expiration(validity)
                 .signWith(this.getSigningKey())
                 .compact();
@@ -82,12 +80,10 @@ public class TokenProvider implements InitializingBean {
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);        //만료시간 설정
-        DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
         return Jwts.builder()
                 .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .claim("userId", (String) defaultOAuth2User.getAttributes().get("email"))
                 .expiration(validity)
                 .signWith(this.getSigningKey())
                 .compact();

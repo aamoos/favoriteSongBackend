@@ -1,23 +1,17 @@
 package com.favoriteSongBackend.oauth2;
 
 
-import com.favoriteSongBackend.entity.Users;
 import com.favoriteSongBackend.jwt.TokenProvider;
-import com.favoriteSongBackend.repository.UserRepository;
 import com.favoriteSongBackend.utils.CookieUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.favoriteSongBackend.oauth2.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
@@ -37,9 +31,8 @@ import static com.favoriteSongBackend.oauth2.HttpCookieOAuth2AuthorizationReques
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    //    private final JwtTokenProvider tokenProvider;
+    //    private final JwtTokenProvider toke nProvider;
     private final TokenProvider tokenProvider;
-    private final UserRepository userRepository;
     private final HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository;
 
     @Override

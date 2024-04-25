@@ -20,14 +20,26 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "임시 비밀번호가 잘못되었습니다. 다시 입력해주세요."),
 
     /*
-     * 409 CONFLICT: 이미 존재하는 회원
+     * 403 FORBIDDEN: 사용자가 활성화되지 않음
      */
-    CONFLICT(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),
+    INACTIVE_USER(HttpStatus.FORBIDDEN, "사용자가 활성화되지 않았습니다."),
+
+    /*
+     * 404 NOT_FOUND: 해당 사용자를 찾을 수 없음
+     */
+    NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
 
     /*
      * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
      */
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 메서드입니다."),
+
+
+    /*
+     * 409 CONFLICT: 이미 존재하는 회원
+     */
+    CONFLICT(HttpStatus.CONFLICT, "이미 존재하는 회원입니다."),
+
 
     /*
      * 500 INTERNAL_SERVER_ERROR: 내부 서버 오류

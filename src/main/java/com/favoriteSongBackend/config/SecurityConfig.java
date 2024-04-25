@@ -48,19 +48,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(sessionManagement -> sessionManagement                           //session을 사용하지 않기 때문에 STATELESS로 설정
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))//토큰 사용하므로 csrf disable
-
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
-
                 .headers((headerConfig) ->
                         headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable     //h2-console을 위한 설정
                         )
                 )
-
+                .sessionManagement(sessionManagement -> sessionManagement                           //session을 사용하지 않기 때문에 STATELESS로 설정
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))//토큰 사용하므로 csrf disable
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers(PathRequest.toH2Console()).permitAll()           //h2 console 관련 security 허용
@@ -68,6 +65,8 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
 //                                .anyRequest().permitAll()
                 )
+                .with(new JwtSecurityConfig(tokenProvider), customizer -> {
+                })
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                                 .baseUri("/oauth2/authorize")
@@ -81,9 +80,7 @@ public class SecurityConfig {
                         )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler)
-                )
-                .with(new JwtSecurityConfig(tokenProvider), customizer -> {
-                });
+                );
 
         return http.build();
     }

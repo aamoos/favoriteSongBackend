@@ -11,6 +11,7 @@ import com.favoriteSongBackend.repository.EmailRepository;
 import com.favoriteSongBackend.repository.UserRepository;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -45,7 +47,7 @@ public class AuthService {
      */
 
     @Transactional
-    public SignupDto.Response signup(SignupDto.Request request) {
+    public ResponseEntity<?> signup(SignupDto.Request request) {
         if (userRepository.findByUserId(request.getUserId()).orElse(null) != null) {
             throw new CustomException(ErrorCode.CONFLICT);
         }
@@ -69,7 +71,7 @@ public class AuthService {
                 .activated(true)
                 .build();
 
-        return new SignupDto.Response(userRepository.save(user).getUserSeq());
+        return ResponseEntity.ok(new SignupDto.Response(userRepository.save(user).getUserSeq()));
     }
     
     //가입되어있는 유저인지 체크
@@ -109,7 +111,7 @@ public class AuthService {
 
         helper.setText(htmlContent, true);
         mailSender.send(message);
-        System.out.println("메일 전송 완료 ----------------------------------------");
+        log.info("메일 전송 완료 ----------------------------------------");
     }
 
 }

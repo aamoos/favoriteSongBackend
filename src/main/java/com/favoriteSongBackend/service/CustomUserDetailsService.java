@@ -1,6 +1,8 @@
 package com.favoriteSongBackend.service;
 
 import com.favoriteSongBackend.entity.Users;
+import com.favoriteSongBackend.exception.CustomException;
+import com.favoriteSongBackend.exception.ErrorCode;
 import com.favoriteSongBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,12 +33,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         return userRepository.findByUserId(userId)
                 .map(users -> createUser(userId, users))
-                .orElseThrow(() -> new UsernameNotFoundException(userId + " -> 데이터베이스에서 찾을 수 없습니다.") );
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
     }
 
     private org.springframework.security.core.userdetails.User createUser(String username, Users users) {
         if(!users.isActivated()){
-            throw new RuntimeException(username + " -> 활성화되어 있지 않습니다.");
+            throw new CustomException(ErrorCode.INACTIVE_USER);
         }
         List<GrantedAuthority> grantedAuthorities = users.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
