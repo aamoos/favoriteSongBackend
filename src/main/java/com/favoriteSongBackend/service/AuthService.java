@@ -25,6 +25,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +84,27 @@ public class AuthService {
         return ResponseEntity.ok(userRepository.findByUserId(request.getUserId()).orElse(null) == null);
     }
 
+    @Transactional
+    public ResponseEntity<?> passwordFind(SignupDto.Request request) {
+        Email email = emailRepository.findFirstByUserIdOrderByCreatedDateDesc(request.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "임시비밀번호가 없습니다."));
+
+        //임시비밀번호가 같지않는경우
+        if(!email.getCheckCode().equals(request.getCheckCode())){
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+
+        Users users =  userRepository.findByUserId(request.getUserId()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        String tempPassword = PasswordGenerator.tempRandomPassword(10);
+        users.changePassword(passwordEncoder.encode(tempPassword));
+
+        return ResponseEntity.ok(tempPassword);
+    }
+
+    //아이디, 이름으로 가입된 유저인지 체크
+    public ResponseEntity<?> passwordFindCheck(SignupDto.Request request){
+        return ResponseEntity.ok(userRepository.findByUserIdAndUserName(request.getUserId(), request.getUserName()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)));
+    }
+
     //임시비밀번호 발송
     public void sendEmail(String userId) throws Exception {
         MimeMessage message = mailSender.createMimeMessage();
@@ -95,7 +117,7 @@ public class AuthService {
         // create the Thymeleaf context object and add the name variable
         Context thymeleafContext = new Context();
 
-        String checkCode = PasswordGenerator.generateRandomPassword(6);
+        String checkCode = PasswordGenerator.generateRandomCheckCode(6);
 
         Email email = Email.builder()
                 .userId(userId)

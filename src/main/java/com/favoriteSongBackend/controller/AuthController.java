@@ -56,6 +56,17 @@ public class AuthController {
         return ResponseEntity.ok(authService.signupCheck(request));
     }
 
+    @PostMapping("/passwordFind")
+    public ResponseEntity<?> passwordFind(@RequestBody SignupDto.Request request){
+        return ResponseEntity.ok(authService.passwordFind(request));
+    }
+
+    //비밀번호찾기 본인이 맞는지
+    @PostMapping("/passwordFindCheck")
+    public ResponseEntity<?> passwordFindCheck(@RequestBody SignupDto.Request request){
+        return ResponseEntity.ok(authService.passwordFindCheck(request));
+    }
+
     //이메일 발송
     @PostMapping("/sendEmail")
     public void sendEmail(@RequestBody SignupDto.Request request) throws Exception {
