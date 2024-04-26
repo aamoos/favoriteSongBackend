@@ -34,6 +34,10 @@ public class Users {
         this.password = password;
     }
 
+    public void changeActivated(boolean active){
+        this.activated = active;
+    }
+
     @ManyToMany
     @JoinTable(
             name = "user_authority",

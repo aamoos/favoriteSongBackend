@@ -68,6 +68,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         //임시비멀번호, social id 설정
         userInfo.changePassword(passwordEncoder.encode(alphaNumericString(10)));
+        userInfo.changeActivated(true);
 
         //저장
         userRepository.save(userInfo);
