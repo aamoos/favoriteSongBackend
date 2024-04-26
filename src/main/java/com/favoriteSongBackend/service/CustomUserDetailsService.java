@@ -30,9 +30,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String userId) throws CustomException {
+
         return userRepository.findByUserId(userId)
-                .map(users -> createUser(userId, users))
+                .map(users -> {
+                    if (!users.isActivated()) {
+                        throw new CustomException(ErrorCode.INACTIVE_USER);
+                    }
+                    return createUser(userId, users);
+                })
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
     }
 

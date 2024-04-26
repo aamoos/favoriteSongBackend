@@ -27,7 +27,7 @@ public enum ErrorCode {
     /*
      * 404 NOT_FOUND: 해당 사용자를 찾을 수 없음
      */
-    NOT_FOUND(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "아이디 또는 비밀번호를 확인해주세요"),
 
     /*
      * 405 METHOD_NOT_ALLOWED: 허용되지 않은 Request Method 호출
