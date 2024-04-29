@@ -1,11 +1,17 @@
 package com.favoriteSongBackend.controller;
 
+import com.favoriteSongBackend.dto.EmailDto;
 import com.favoriteSongBackend.dto.LoginDto;
 import com.favoriteSongBackend.dto.SignupDto;
 import com.favoriteSongBackend.dto.TokenDto;
+import com.favoriteSongBackend.entity.Users;
+import com.favoriteSongBackend.exception.CustomException;
+import com.favoriteSongBackend.exception.ErrorCode;
 import com.favoriteSongBackend.jwt.JwtFilter;
 import com.favoriteSongBackend.jwt.TokenProvider;
+import com.favoriteSongBackend.repository.UserRepository;
 import com.favoriteSongBackend.service.AuthService;
+import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,9 +20,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,12 +36,26 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final AuthService authService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginDto loginDto){
 
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(loginDto.getUserId(), loginDto.getPassword());
+
+        Optional<Users> optionalUsers = userRepository.findByUserId(loginDto.getUserId());
+        Users users = optionalUsers.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        //사용자가 비활성화일때
+        if (!users.isActivated()) {
+            throw new CustomException(ErrorCode.INACTIVE_USER);
+        }
+        else if(!passwordEncoder.matches(loginDto.getPassword(), users.getPassword())){
+            //패스워드가 같지않을때
+            throw new CustomException(ErrorCode.NOT_FOUND);
+        }
 
         //authenticate -> loadByUserName
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -57,7 +81,7 @@ public class AuthController {
     }
 
     @PostMapping("/passwordFind")
-    public ResponseEntity<?> passwordFind(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> passwordFind(@RequestBody SignupDto.Request request) throws Exception {
         return ResponseEntity.ok(authService.passwordFind(request));
     }
 
@@ -69,8 +93,12 @@ public class AuthController {
 
     //이메일 발송
     @PostMapping("/sendEmail")
-    public void sendEmail(@RequestBody SignupDto.Request request) throws Exception {
-        authService.sendEmail(request.getUserId());
+    public void sendEmail(@RequestBody EmailDto.Request request) throws Exception {
+
+        //인증번호 발송
+        if(request.getType().equals("checkCode")){
+            authService.sendCheckCodeEmail(request);
+        }
     }
 
 }

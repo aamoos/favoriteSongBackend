@@ -1,11 +1,11 @@
 package com.favoriteSongBackend.dto;
 
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * 회원가입 요청 Dto
  */
-@Data
 public class SignupDto {
 
     @Data
@@ -16,7 +16,7 @@ public class SignupDto {
         private String checkCode;           //인증번호
     }
 
-    @Data
+    @Getter
     public static class Response {
         private Long userSeq;
 

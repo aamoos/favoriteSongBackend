@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -32,20 +33,17 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String userId) throws CustomException {
 
-        return userRepository.findByUserId(userId)
-                .map(users -> {
-                    if (!users.isActivated()) {
-                        throw new CustomException(ErrorCode.INACTIVE_USER);
-                    }
-                    return createUser(userId, users);
-                })
-                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+        Optional<Users> optionalUsers = userRepository.findByUserId(userId);
+        Users users = optionalUsers.orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        return createUser(users);
     }
 
-    private org.springframework.security.core.userdetails.User createUser(String username, Users users) {
+    private org.springframework.security.core.userdetails.User createUser(Users users) {
         if(!users.isActivated()){
             throw new CustomException(ErrorCode.INACTIVE_USER);
         }
+
         List<GrantedAuthority> grantedAuthorities = users.getAuthorities().stream()
                 .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
                 .collect(Collectors.toList());
