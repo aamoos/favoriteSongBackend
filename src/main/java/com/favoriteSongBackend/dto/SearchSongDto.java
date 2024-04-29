@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SongSearchDto {
+public class SearchSongDto {
 
     @Data
     public static class Request {

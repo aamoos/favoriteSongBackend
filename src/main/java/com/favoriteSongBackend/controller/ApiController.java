@@ -1,6 +1,7 @@
 package com.favoriteSongBackend.controller;
 
-import com.favoriteSongBackend.dto.SongSearchDto;
+import com.favoriteSongBackend.dto.FavoriteSongDto;
+import com.favoriteSongBackend.dto.SearchSongDto;
 import com.favoriteSongBackend.service.ApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +14,28 @@ public class ApiController {
 
     private final ApiService apiService;
 
-    @PostMapping("/songSearch")
+    /**
+     * 노래검색
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/searchSong")
     //노래검색
-    public ResponseEntity<?> songSearch(@RequestBody SongSearchDto.Request request) throws Exception {
+    public ResponseEntity<?> songSearch(@RequestBody SearchSongDto.Request request) throws Exception {
         return ResponseEntity.ok(apiService.songSearch(request));
+    }
+
+    /**
+     * 즐겨찾기
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/favoriteSong")
+    //노래검색
+    public ResponseEntity<?> songFavorite(@RequestBody FavoriteSongDto.Request request) throws Exception {
+        return ResponseEntity.ok(apiService.songFavorite(request));
     }
 
 }
