@@ -11,7 +11,9 @@ import com.favoriteSongBackend.jwt.JwtFilter;
 import com.favoriteSongBackend.jwt.TokenProvider;
 import com.favoriteSongBackend.repository.UserRepository;
 import com.favoriteSongBackend.service.AuthService;
+import com.favoriteSongBackend.service.CustomUserDetailsService;
 import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,13 +22,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
+
+import static com.favoriteSongBackend.exception.ErrorCode.USER_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +44,7 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CustomUserDetailsService userDetailsService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenDto> login(@RequestBody LoginDto loginDto){
@@ -64,10 +71,42 @@ public class AuthController {
         String accessToken = tokenProvider.createToken(authentication);
         String refreshToken = tokenProvider.createRefreshToken(authentication);
 
+        //refreshToken 갱신
+        users.changeRefreshToken(refreshToken);
+        userRepository.save(users);
+
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + accessToken);
 
         return new ResponseEntity<>(new TokenDto(accessToken, refreshToken), httpHeaders, HttpStatus.OK);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<TokenDto> refresh(@RequestBody TokenDto tokenDto){
+
+        //리프레시토큰
+        String refreshToken = tokenDto.getRefreshToken();
+
+        //검증
+        if (StringUtils.hasText(refreshToken) && tokenProvider.validateToken(refreshToken)) {
+            String username = tokenProvider.getUsernameFromToken(refreshToken);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword());
+
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // 새로운 access token 발급
+            String accessToken = tokenProvider.createToken(authentication);
+
+            // 새로운 refresh token 발급 (옵셔널)
+            String newRefreshToken = tokenProvider.createRefreshToken(authentication);
+
+            return ResponseEntity.ok(new TokenDto(accessToken, newRefreshToken));
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @PostMapping("/signup")

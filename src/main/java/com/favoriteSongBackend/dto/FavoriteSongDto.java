@@ -12,6 +12,7 @@ public class FavoriteSongDto {
         private Long no;            //노래번호
         private String singer;      //가수명
         private String title;       //제목
+        private String userId;      //등록자
 
         /* Dto -> Entity */
         public FavoriteSong toEntity() {
@@ -21,6 +22,7 @@ public class FavoriteSongDto {
                     .no(no)
                     .singer(singer)
                     .title(title)
+                    .userId(userId)
                     .build();
 
         }
@@ -28,10 +30,10 @@ public class FavoriteSongDto {
 
     @Getter
     public static class Response {
-        private Long id;
+        private boolean liked;
 
-        public Response(Long id) {
-            this.id = id;
+        public Response(boolean liked) {
+            this.liked = liked;
         }
     }
 }

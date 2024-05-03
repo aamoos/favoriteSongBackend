@@ -27,6 +27,19 @@ public class ApiController {
     }
 
     /**
+     * 즐겨찾기 노래검색
+     * @param request
+     * @return
+     * @throws Exception
+     */
+
+    @PostMapping("/searchFavoriteSong")
+    //노래검색
+    public ResponseEntity<?> searchFavoriteSong(@RequestBody SearchSongDto.Request request) throws Exception {
+        return ResponseEntity.ok(apiService.songFavoriteSearch(request));
+    }
+
+    /**
      * 즐겨찾기
      * @param request
      * @return

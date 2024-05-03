@@ -18,7 +18,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +53,30 @@ public class ApiService {
 
         log.info("response = {}", response);
 
+        List<SearchSongDto.SongResponseDto> data = null;
+        if (response != null) {
+            data = response.getData();
+        }
+        List<FavoriteSong> favoriteSongs = favoriteSongRepository.findByUserId(request.getUserId());
+
+        // 내가 좋아하는 곡번호 리스트
+        List<Long> noList = favoriteSongs.stream()
+                .map(FavoriteSong::getNo)
+                .toList();
+
+        //내가 좋아하는 곡번호 리스트와 조회한 곡 리스트 번호가 같은경우 liked true, else -> false
+        if (data != null) {
+            for (SearchSongDto.SongResponseDto datum : data) {
+                datum.setLiked(noList.contains(datum.getNo()));
+            }
+        }
+
         return ResponseEntity.ok(response);
+    }
+
+    @Transactional
+    public ResponseEntity<?> songFavoriteSearch(SearchSongDto.Request request){
+        return null;
     }
 
     @Transactional
@@ -59,10 +84,15 @@ public class ApiService {
 
         Optional<FavoriteSong> existingFavorite = favoriteSongRepository.findByBrandAndNo(request.getBrand(), request.getNo());
 
-        // 기존 값이 존재하면 삭제
-        existingFavorite.ifPresent(favoriteSongRepository::delete);
-
-        return ResponseEntity.ok(new FavoriteSongDto.Response(favoriteSongRepository.save(request.toEntity()).getId()));
+        //값이 있으면 삭제처리
+        if (existingFavorite.isPresent()) {
+            favoriteSongRepository.delete(existingFavorite.get());
+            return ResponseEntity.ok(new FavoriteSongDto.Response(false));
+        } else {
+            //값이 없으면 저장
+            favoriteSongRepository.save(request.toEntity());
+            return ResponseEntity.ok(new FavoriteSongDto.Response(true));
+        }
     }
 
     private String getMakeParam(SearchSongDto.Request request){

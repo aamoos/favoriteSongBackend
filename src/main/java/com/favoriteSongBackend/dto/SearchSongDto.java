@@ -14,17 +14,19 @@ public class SearchSongDto {
         private String searchVal;
         private int limit;
         private int offset;
+        private String userId;
     }
 
     @Data
     public static class SongResponseDto {
         private String brand;
-        private String no;
+        private Long no;
         private String title;
         private String singer;
         private String composer;
         private String lyricist;
         private String release;
+        private boolean liked;
     }
 
     @Data

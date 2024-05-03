@@ -12,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
@@ -65,8 +67,19 @@ public class TokenProvider implements InitializingBean {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInSeconds);        //만료시간 설정
 
+        String authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+        String subject = "";
+        System.out.println(authorizedClientRegistrationId);
+        //구글일경우 subject email로 setting
+        if(authorizedClientRegistrationId.equals("google")){
+            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            subject = defaultOAuth2User.getAttribute("email");
+        }else{
+            subject = authentication.getName();
+        }
+
         return Jwts.builder()
-                .subject(authentication.getName())
+                .subject(subject)
                 .claim(AUTHORITIES_KEY, authorities)
                 .expiration(validity)
                 .signWith(this.getSigningKey())
@@ -108,9 +121,9 @@ public class TokenProvider implements InitializingBean {
     }
 
     //토큰의 유효성 검정을 수행하는 메소드
-    public boolean validateToken(String accessToken){
+    public boolean validateToken(String token){
         try{
-            Jwts.parser().setSigningKey(key).build().parseClaimsJws(accessToken);
+            Jwts.parser().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch(io.jsonwebtoken.security.SecurityException | MalformedJwtException e){
             log.info("잘못된 JWT 서명입니다.");
@@ -134,6 +147,15 @@ public class TokenProvider implements InitializingBean {
             // 여기서 토큰을 검증하거나 추가적인 작업을 수행할 수 있습니다.
         }
         return jwtToken;
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret.getBytes())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 
 }

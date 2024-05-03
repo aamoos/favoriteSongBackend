@@ -21,8 +21,8 @@ public class FavoriteSong {
     private Long id;
     private String brand;
     private Long no;
-
     private String singer;
-
     private String title;
+    private String userId;
+
 }

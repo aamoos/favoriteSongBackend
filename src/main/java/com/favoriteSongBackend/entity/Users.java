@@ -27,6 +27,8 @@ public class Users {
 
     private String password;            //사용자 비밀번호
 
+    private String refreshToken;        //refresh token
+
     private boolean activated;          //활성화 여부
 
     //패스워드 변경
@@ -36,6 +38,10 @@ public class Users {
 
     public void changeActivated(boolean active){
         this.activated = active;
+    }
+
+    public void changeRefreshToken(String refreshToken){
+        this.refreshToken = refreshToken;
     }
 
     @ManyToMany
