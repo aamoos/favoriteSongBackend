@@ -1,10 +1,10 @@
 package com.favoriteSongBackend.service;
 
-import com.favoriteSongBackend.dto.FavoriteSongDto;
-import com.favoriteSongBackend.dto.SearchSongDto;
-import com.favoriteSongBackend.dto.SignupDto;
+import com.favoriteSongBackend.dto.*;
 import com.favoriteSongBackend.entity.FavoriteSong;
 import com.favoriteSongBackend.repository.FavoriteSongRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -22,12 +22,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.favoriteSongBackend.entity.QFavoriteSong.favoriteSong;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class ApiService {
 
     private final FavoriteSongRepository favoriteSongRepository;
+    private final JPAQueryFactory jpaQueryFactory;
 
     @Transactional
     public ResponseEntity<?> songSearch(SearchSongDto.Request request) throws Exception {
@@ -75,7 +78,36 @@ public class ApiService {
     }
 
     @Transactional
-    public ResponseEntity<?> songFavoriteSearch(SearchSongDto.Request request){
+    public List<FavoriteListDto.Response> songFavoriteSearch(SearchSongDto.Request request){
+
+        return jpaQueryFactory
+                .select(new QFavoriteListDto_Response(
+                        favoriteSong.id,
+                        favoriteSong.no,
+                        favoriteSong.singer,
+                        favoriteSong.title,
+                        favoriteSong.userId
+                ))
+                .from(favoriteSong)
+                .where(
+                         favoriteSong.brand.eq(request.getBrand())
+                        ,favoriteSong.userId.eq(request.getUserId())
+                        ,eqSearchCondition(request)
+                )
+                .fetch();
+    }
+
+    private BooleanExpression eqSearchCondition(SearchSongDto.Request request) {
+        String searchType = request.getSearchType();
+        String searchVal = request.getSearchVal();
+
+        if(searchType.equals("title")){
+            return StringUtils.hasText(searchVal) ? favoriteSong.title.contains(searchVal) : null;
+        }else if(searchType.equals("singer")){
+            return StringUtils.hasText(searchVal) ? favoriteSong.singer.contains(searchVal) : null;
+        }else if(searchType.equals("no")){
+            return StringUtils.hasText(searchVal) ? favoriteSong.no.eq(Long.valueOf(searchVal)) : null;
+        }
         return null;
     }
 
