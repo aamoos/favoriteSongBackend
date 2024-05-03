@@ -67,19 +67,8 @@ public class TokenProvider implements InitializingBean {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInSeconds);        //만료시간 설정
 
-        String authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
-        String subject = "";
-        System.out.println(authorizedClientRegistrationId);
-        //구글일경우 subject email로 setting
-        if(authorizedClientRegistrationId.equals("google")){
-            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-            subject = defaultOAuth2User.getAttribute("email");
-        }else{
-            subject = authentication.getName();
-        }
-
         return Jwts.builder()
-                .subject(subject)
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
                 .expiration(validity)
                 .signWith(this.getSigningKey())
@@ -96,6 +85,55 @@ public class TokenProvider implements InitializingBean {
 
         return Jwts.builder()
                 .subject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
+                .expiration(validity)
+                .signWith(this.getSigningKey())
+                .compact();
+    }
+
+    public String createOauthToken(Authentication authentication){
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.tokenValidityInSeconds);        //만료시간 설정
+
+        String authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+        String subject = "";
+        //구글일경우 subject email로 setting
+        if(authorizedClientRegistrationId.equals("google")){
+            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            subject = defaultOAuth2User.getAttribute("email");
+        }
+
+        return Jwts.builder()
+                .subject(subject)
+                .claim(AUTHORITIES_KEY, authorities)
+                .expiration(validity)
+                .signWith(this.getSigningKey())
+                .compact();
+    }
+
+    public String createOauthRefreshToken(Authentication authentication){
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);        //만료시간 설정
+
+        String authorizedClientRegistrationId = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+
+        String subject = "";
+        //구글일경우 subject email로 setting
+        if(authorizedClientRegistrationId.equals("google")){
+            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            subject = defaultOAuth2User.getAttribute("email");
+        }
+
+        return Jwts.builder()
+                .subject(subject)
                 .claim(AUTHORITIES_KEY, authorities)
                 .expiration(validity)
                 .signWith(this.getSigningKey())
