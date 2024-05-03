@@ -114,7 +114,7 @@ public class ApiService {
     @Transactional
     public ResponseEntity<?> songFavorite(FavoriteSongDto.Request request){
 
-        Optional<FavoriteSong> existingFavorite = favoriteSongRepository.findByBrandAndNo(request.getBrand(), request.getNo());
+        Optional<FavoriteSong> existingFavorite = favoriteSongRepository.findByBrandAndNoAndUserId(request.getBrand(), request.getNo(), request.getUserId());
 
         //값이 있으면 삭제처리
         if (existingFavorite.isPresent()) {

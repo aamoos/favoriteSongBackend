@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface FavoriteSongRepository extends JpaRepository<FavoriteSong, Long> {
 
-    Optional<FavoriteSong> findByBrandAndNo(String brand, Long no);
+    Optional<FavoriteSong> findByBrandAndNoAndUserId(String brand, Long no, String userId);
 
     List<FavoriteSong> findByUserId(String userId);
 }
