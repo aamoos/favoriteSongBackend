@@ -10,6 +10,7 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Service;
@@ -32,12 +33,18 @@ public class ApiService {
     private final FavoriteSongRepository favoriteSongRepository;
     private final JPAQueryFactory jpaQueryFactory;
 
+    @Value("${spring.karaoke.search-url}")
+    private String searchUrl;
+
+    @Value("${spring.karaoke.release-url}")
+    private String releaseUrl;
+
     @Transactional
     public ResponseEntity<?> songSearch(SearchSongDto.Request request) throws Exception {
 
         SslContext context = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
         HttpClient httpClient = HttpClient.create().secure(provider -> provider.sslContext(context));
-        String httpUrl = "https://api.manana.kr/v2/karaoke/search.json" + getMakeParam(request);
+        String httpUrl = getRequestUrl(request);
 
         log.info("httpUrl = {}", httpUrl);
 
@@ -60,6 +67,7 @@ public class ApiService {
         if (response != null) {
             data = response.getData();
         }
+
         List<FavoriteSong> favoriteSongs = favoriteSongRepository.findByUserId(request.getUserId());
 
         // 내가 좋아하는 곡번호 리스트
@@ -81,20 +89,23 @@ public class ApiService {
     public List<FavoriteListDto.Response> songFavoriteSearch(SearchSongDto.Request request){
 
         return jpaQueryFactory
-                .select(new QFavoriteListDto_Response(
-                        favoriteSong.id,
-                        favoriteSong.no,
-                        favoriteSong.singer,
-                        favoriteSong.title,
-                        favoriteSong.userId
-                ))
-                .from(favoriteSong)
-                .where(
-                         favoriteSong.brand.eq(request.getBrand())
-                        ,favoriteSong.userId.eq(request.getUserId())
-                        ,eqSearchCondition(request)
-                )
-                .fetch();
+            .select(new QFavoriteListDto_Response(
+                    favoriteSong.id,
+                    favoriteSong.no,
+                    favoriteSong.singer,
+                    favoriteSong.title,
+                    favoriteSong.userId,
+                    favoriteSong.composer,
+                    favoriteSong.lyricist,
+                    favoriteSong.release
+            ))
+            .from(favoriteSong)
+            .where(
+                 favoriteSong.brand.eq(request.getBrand())
+                ,favoriteSong.userId.eq(request.getUserId())
+                ,eqSearchCondition(request)
+            )
+            .fetch();
     }
 
     private BooleanExpression eqSearchCondition(SearchSongDto.Request request) {
@@ -127,12 +138,33 @@ public class ApiService {
         }
     }
 
+    //request 생성
+    private String getRequestUrl(SearchSongDto.Request request){
+        String target = request.getUrlTarget();
+        String url = "";
+        if(target.equals("search")){
+            url = searchUrl;
+        }else if(target.equals("release")){
+            url = releaseUrl;
+        }
+
+        //파라미터 붙이기
+        url+=getMakeParam(request);
+
+        return url;
+    }
+
     private String getMakeParam(SearchSongDto.Request request){
         String result = "";
 
         //kumyoung / tj / dam / joysound
         if(StringUtils.hasText(request.getBrand().trim())){
             result+="?brand="+request.getBrand();
+        }
+
+        //인기차트일때 날짜 붙여주기
+        if(request.getUrlTarget().equals("release")){
+            result+="&release="+request.getSearchDate();
         }
 
         //제목

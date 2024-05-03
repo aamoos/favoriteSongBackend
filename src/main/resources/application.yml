@@ -16,6 +16,9 @@ spring:
           timeout: 5000 # 6
           starttls:
             enable: true # 7
+  karaoke:
+    search-url: https://api.manana.kr/v2/karaoke/search.json
+    release-url: https://api.manana.kr/v2/karaoke/release.json
 
 jwt:
   header: Authorization

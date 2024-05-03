@@ -24,5 +24,8 @@ public class FavoriteSong {
     private String singer;
     private String title;
     private String userId;
+    private String composer;    //작곡가
+    private String lyricist;    //작사가
+    private String release;     //출시일
 
 }

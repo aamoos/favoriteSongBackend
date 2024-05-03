@@ -12,9 +12,11 @@ public class SearchSongDto {
         private String brand;               // kumyoung, tj, dam, joysound
         private String searchType;          // title, singer, no
         private String searchVal;
+        private String searchDate;
         private int limit;
         private int offset;
         private String userId;
+        private String urlTarget;
     }
 
     @Data

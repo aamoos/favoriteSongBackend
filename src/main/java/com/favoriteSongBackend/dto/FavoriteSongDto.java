@@ -13,6 +13,9 @@ public class FavoriteSongDto {
         private String singer;      //가수명
         private String title;       //제목
         private String userId;      //등록자
+        private String composer;    //작곡가
+        private String lyricist;    //작사가
+        private String release;     //출시일
 
         /* Dto -> Entity */
         public FavoriteSong toEntity() {
@@ -23,6 +26,9 @@ public class FavoriteSongDto {
                     .singer(singer)
                     .title(title)
                     .userId(userId)
+                    .composer(composer)
+                    .lyricist(lyricist)
+                    .release(release)
                     .build();
 
         }
