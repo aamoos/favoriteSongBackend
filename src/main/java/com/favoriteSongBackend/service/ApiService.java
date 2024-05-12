@@ -91,6 +91,7 @@ public class ApiService {
         return jpaQueryFactory
             .select(new QFavoriteListDto_Response(
                     favoriteSong.id,
+                    favoriteSong.brand,
                     favoriteSong.no,
                     favoriteSong.singer,
                     favoriteSong.title,

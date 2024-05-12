@@ -32,6 +32,7 @@ public class FavoriteListDto {
     @Getter
     public static class Response {
         private Long id;
+        private String brand;
         private Long no;
         private String singer;
         private String title;
@@ -42,6 +43,7 @@ public class FavoriteListDto {
 
         public Response(FavoriteSong favoriteSong) {
             this.id = favoriteSong.getId();
+            this.brand = favoriteSong.getBrand();
             this.no = favoriteSong.getNo();
             this.singer = favoriteSong.getSinger();
             this.title = favoriteSong.getTitle();
@@ -52,13 +54,13 @@ public class FavoriteListDto {
         }
 
         @QueryProjection
-        public Response(Long id, Long no, String singer
-                , String title, String userId
-                , String composer, String lyricist
-                , String release) {
+        public Response(Long id, String brand, Long no,
+                        String singer, String title, String userId
+                , String composer, String lyricist, String release) {
             this.id = id;
+            this.brand = brand;
             this.no = no;
-            this. singer = singer;
+            this.singer = singer;
             this.title = title;
             this.userId = userId;
             this.composer = composer;
