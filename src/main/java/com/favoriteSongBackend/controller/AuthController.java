@@ -14,6 +14,7 @@ import com.favoriteSongBackend.service.AuthService;
 import com.favoriteSongBackend.service.CustomUserDetailsService;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -116,7 +117,7 @@ public class AuthController {
 
     //중복회원 체크
     @PostMapping("/signupCheck")
-    public ResponseEntity<?> signUpCheck(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> signUpCheck(@RequestBody @Valid SignupDto.Request request){
         return ResponseEntity.ok(authService.signupCheck(request));
     }
 
