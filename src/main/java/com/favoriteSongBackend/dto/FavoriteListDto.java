@@ -50,13 +50,13 @@ public class FavoriteListDto {
             this.userId = favoriteSong.getUserId();
             this.composer = favoriteSong.getComposer();
             this.lyricist = favoriteSong.getLyricist();
-            this.release = favoriteSong.getRelease();
+            this.release = favoriteSong.getReleaseDate();
         }
 
         @QueryProjection
         public Response(Long id, String brand, Long no,
                         String singer, String title, String userId
-                , String composer, String lyricist, String release) {
+                , String composer, String lyricist, String releaseDate) {
             this.id = id;
             this.brand = brand;
             this.no = no;
@@ -65,7 +65,7 @@ public class FavoriteListDto {
             this.userId = userId;
             this.composer = composer;
             this.lyricist = lyricist;
-            this.release = release;
+            this.release = releaseDate;
         }
     }
 }

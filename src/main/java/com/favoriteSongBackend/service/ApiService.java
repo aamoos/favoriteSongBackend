@@ -98,7 +98,7 @@ public class ApiService {
                     favoriteSong.userId,
                     favoriteSong.composer,
                     favoriteSong.lyricist,
-                    favoriteSong.release
+                    favoriteSong.releaseDate
             ))
             .from(favoriteSong)
             .where(
