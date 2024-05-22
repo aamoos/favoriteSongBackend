@@ -1,9 +1,6 @@
 package com.favoriteSongBackend.controller;
 
-import com.favoriteSongBackend.dto.EmailDto;
-import com.favoriteSongBackend.dto.LoginDto;
-import com.favoriteSongBackend.dto.SignupDto;
-import com.favoriteSongBackend.dto.TokenDto;
+import com.favoriteSongBackend.dto.*;
 import com.favoriteSongBackend.entity.Users;
 import com.favoriteSongBackend.exception.CustomException;
 import com.favoriteSongBackend.exception.ErrorCode;
@@ -12,8 +9,6 @@ import com.favoriteSongBackend.jwt.TokenProvider;
 import com.favoriteSongBackend.repository.UserRepository;
 import com.favoriteSongBackend.service.AuthService;
 import com.favoriteSongBackend.service.CustomUserDetailsService;
-import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -32,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
-
-import static com.favoriteSongBackend.exception.ErrorCode.USER_NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
@@ -111,24 +104,24 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> signUp(@RequestBody SignUpDto.Request request){
         return ResponseEntity.ok(authService.signup(request));
     }
 
     //중복회원 체크
     @PostMapping("/signupCheck")
-    public ResponseEntity<?> signUpCheck(@RequestBody @Valid SignupDto.Request request){
+    public ResponseEntity<?> signUpCheck(@RequestBody @Valid SignDto.Request request){
         return ResponseEntity.ok(authService.signupCheck(request));
     }
 
     @PostMapping("/passwordFind")
-    public ResponseEntity<?> passwordFind(@RequestBody SignupDto.Request request) throws Exception {
+    public ResponseEntity<?> passwordFind(@RequestBody SignDto.Request request) throws Exception {
         return ResponseEntity.ok(authService.passwordFind(request));
     }
 
     //비밀번호찾기 본인이 맞는지
     @PostMapping("/passwordFindCheck")
-    public ResponseEntity<?> passwordFindCheck(@RequestBody SignupDto.Request request){
+    public ResponseEntity<?> passwordFindCheck(@RequestBody SignDto.Request request){
         return ResponseEntity.ok(authService.passwordFindCheck(request));
     }
 

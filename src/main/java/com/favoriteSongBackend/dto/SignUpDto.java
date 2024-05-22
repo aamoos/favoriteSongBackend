@@ -8,7 +8,7 @@ import lombok.Getter;
 /**
  * 회원가입 요청 Dto
  */
-public class SignupDto {
+public class SignUpDto {
 
     @Data
     public static class Request {

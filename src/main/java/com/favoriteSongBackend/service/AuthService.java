@@ -2,7 +2,8 @@ package com.favoriteSongBackend.service;
 
 import com.favoriteSongBackend.common.PasswordGenerator;
 import com.favoriteSongBackend.dto.EmailDto;
-import com.favoriteSongBackend.dto.SignupDto;
+import com.favoriteSongBackend.dto.SignDto;
+import com.favoriteSongBackend.dto.SignUpDto;
 import com.favoriteSongBackend.entity.Authority;
 import com.favoriteSongBackend.entity.Email;
 import com.favoriteSongBackend.entity.Users;
@@ -27,7 +28,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Collections;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -50,7 +50,7 @@ public class AuthService {
      */
 
     @Transactional
-    public ResponseEntity<?> signup(SignupDto.Request request) {
+    public ResponseEntity<?> signup(SignUpDto.Request request) {
         if (userRepository.findByUserId(request.getUserId()).orElse(null) != null) {
             throw new CustomException(ErrorCode.CONFLICT);
         }
@@ -74,11 +74,11 @@ public class AuthService {
                 .activated(true)
                 .build();
 
-        return ResponseEntity.ok(new SignupDto.Response(userRepository.save(user).getUserSeq()));
+        return ResponseEntity.ok(new SignDto.Response(userRepository.save(user).getUserSeq()));
     }
     
     //가입되어있는 유저인지 체크
-    public ResponseEntity<?> signupCheck(SignupDto.Request request){
+    public ResponseEntity<?> signupCheck(SignDto.Request request){
 
         if (userRepository.findByUserId(request.getUserId()).orElse(null) != null) {
             throw new CustomException(ErrorCode.CONFLICT);
@@ -87,7 +87,7 @@ public class AuthService {
     }
 
     @Transactional
-    public ResponseEntity<?> passwordFind(SignupDto.Request request) throws Exception {
+    public ResponseEntity<?> passwordFind(SignDto.Request request) throws Exception {
         Email email = emailRepository.findFirstByUserIdOrderByCreatedDateDesc(request.getUserId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "임시비밀번호가 없습니다."));
 
         //임시비밀번호가 같지않는경우
@@ -107,7 +107,7 @@ public class AuthService {
     }
 
     //아이디, 이름으로 가입된 유저인지 체크
-    public ResponseEntity<?> passwordFindCheck(SignupDto.Request request){
+    public ResponseEntity<?> passwordFindCheck(SignDto.Request request){
         return ResponseEntity.ok(userRepository.findByUserIdAndUserName(request.getUserId(), request.getUserName()).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND)));
     }
 
@@ -142,7 +142,7 @@ public class AuthService {
     }
 
     //임시 비밀번호 발송
-    private void sendTempPasswordEmail(SignupDto.Request request, String tempPassword) throws MessagingException {
+    private void sendTempPasswordEmail(SignDto.Request request, String tempPassword) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
