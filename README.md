@@ -5,6 +5,8 @@
 
 # 개발환경
 - inteliJ
+- Spring boot
+- Gradle
 - h2 (local)
 - mariadb (prod)
 
