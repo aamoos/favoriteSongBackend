@@ -24,7 +24,7 @@
 
 # frontend repository url
 - https://github.com/aamoos/favorite-song.git
-- 
+
 # backend repository url
 - https://github.com/aamoos/favoriteSongBackend.git
 
