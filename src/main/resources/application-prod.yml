@@ -1,7 +1,6 @@
 spring:
   datasource:
-    #url: ${MARIADB_URL}  # URL을 MariaDB용으로 변경
-    url: jdbc:mariadb://ec2-15-165-90-71.ap-northeast-2.compute.amazonaws.com:3306/favoriteSong
+    url: ${MARIADB_URL}  # URL을 MariaDB용으로 변경
     driver-class-name: org.mariadb.jdbc.Driver       # 드라이버 클래스를 MariaDB용으로 변경
     username: ${MARIADB_USERNAME}                           # MariaDB 사용자명
     password: ${MARIADB_PASSWORD}                           # MariaDB 비밀번호
