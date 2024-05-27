@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))//토큰 사용하므로 csrf disable
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
-                                .requestMatchers(PathRequest.toH2Console()).permitAll()           //h2 console 관련 security 허용
+//                                .requestMatchers(PathRequest.toH2Console()).permitAll()           //h2 console 관련 security 허용
                                 .requestMatchers("/auth/**", "/oauth2/**", "/sendMail/**").permitAll()
                                 .anyRequest().authenticated()
 //                                .anyRequest().permitAll()
