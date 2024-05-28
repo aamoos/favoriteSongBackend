@@ -3,7 +3,7 @@ server:
 
 spring:
   profiles:
-    active: prod     #loal prod
+    active: ${profile}     #loal prod
     include: oauth
   mail:
     host: smtp.gmail.com # 1
