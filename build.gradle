@@ -64,31 +64,6 @@ dependencies {
 	implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
 }
 
-// MariaDB 연결을 임시로 비활성화
-task disableMariaDBConnection {
-	doLast {
-		println "MariaDB 연결을 비활성화 합니다."
-		def applicationYamlFile = file('src/main/resources/application.yml')
-		if (applicationYamlFile.exists()) {
-			applicationYamlFile.renameTo(new File(applicationYamlFile.parent, 'application.yml.disabled'))
-		}
-	}
-}
-
-// MariaDB 연결을 다시 활성화
-task enableMariaDBConnection {
-	doLast {
-		println "MariaDB 연결을 다시 활성화 합니다."
-		def applicationYamlFile = file('src/main/resources/application.yml.disabled')
-		if (applicationYamlFile.exists()) {
-			applicationYamlFile.renameTo(new File(applicationYamlFile.parent, 'application.yml'))
-		}
-	}
-}
-
-// 빌드 태스크에 MariaDB 연결 비활성화 태스크를 의존성으로 추가
-build.dependsOn(disableMariaDBConnection)
-
 tasks.named('test') {
 	useJUnitPlatform()
 }
