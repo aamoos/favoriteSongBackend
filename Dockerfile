@@ -1,5 +1,5 @@
-# jdk17 Image Start
 FROM openjdk:17 AS builder
+RUN microdnf install findutils
 COPY gradlew .
 COPY gradle gradle
 COPY build.gradle .
@@ -11,6 +11,5 @@ RUN ./gradlew bootJar
 FROM openjdk:17
 COPY --from=builder build/libs/*.jar app.jar
 
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
 VOLUME /tmp
