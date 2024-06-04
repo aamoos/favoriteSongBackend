@@ -1,11 +1,15 @@
-# jdk17 Image Start
+FROM openjdk:17 AS builder
+RUN microdnf install findutils
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
+COPY src src
+RUN chmod +x ./gradlew
+RUN ./gradlew bootJar
+
 FROM openjdk:17
+COPY --from=builder build/libs/*.jar app.jar
 
-# 인자설정 - JAR_File
-ARG JAR_FILE=build/libs/*.jar
-
-# jar 파일 복제
-COPY ${JAR_FILE} app.jar
-
-#실행 명령어
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+VOLUME /tmp
