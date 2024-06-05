@@ -3,12 +3,20 @@
 
 # favorite-song-backend
 
+# 서버정보
+- ec2
+- Route 53
+- nginx
+- lets encrypt (적용중)
+- backend -> 8080, fronend & nginx -> 80, 443, mariadb -> 3306
+
 # 개발환경
 - inteliJ
 - Spring boot
 - Gradle
 - h2 (local)
 - mariadb (prod)
+- docker-compose
 
 # 사용기술
 - spring data jpa
