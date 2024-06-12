@@ -9,6 +9,7 @@
 - nginx
 - lets encrypt (적용중)
 - backend -> 8080, fronend & nginx -> 80, 443, mariadb -> 3306
+- https://favorite-song.store
 
 # 개발환경
 - inteliJ
