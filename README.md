@@ -8,6 +8,7 @@
 - Route 53
 - nginx
 - lets encrypt
+- docker-compose
 - backend -> 8080, fronend & nginx -> 80, 443, mariadb -> 3306
 - https://favorite-song.store (aws 요금으로 평소에 꺼놓음, 사용할때만 킴)
 
@@ -17,7 +18,6 @@
 - Gradle
 - h2 (local)
 - mariadb (prod)
-- docker-compose
 
 # 사용기술
 - spring data jpa
