@@ -12,6 +12,10 @@
 - backend -> 8080, fronend & nginx -> 80, 443, mariadb -> 3306
 - https://favorite-song.store (aws 요금으로 평소에 꺼놓음, 사용할때만 킴)
 
+# 네트워크 구성도
+![image](https://github.com/aamoos/favoriteSongBackend/assets/37327676/db6ccebb-cf51-475c-9cca-c4c637cc2433)
+
+
 # 개발환경
 - inteliJ
 - Spring boot
