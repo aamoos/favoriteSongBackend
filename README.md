@@ -7,7 +7,7 @@
 - ec2
 - Route 53
 - nginx
-- lets encrypt (적용중)
+- lets encrypt
 - backend -> 8080, fronend & nginx -> 80, 443, mariadb -> 3306
 - https://favorite-song.store (aws 요금으로 평소에 꺼놓음, 사용할때만 킴)
 
