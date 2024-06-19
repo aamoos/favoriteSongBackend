@@ -48,7 +48,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 .map(Cookie::getValue);
 
         String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
-        System.out.println("targetUrl : " + targetUrl);
         String token = "";
         String refreshToken = "";
 
