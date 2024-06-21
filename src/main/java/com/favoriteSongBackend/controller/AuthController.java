@@ -86,19 +86,24 @@ public class AuthController {
             String username = tokenProvider.getUsernameFromToken(refreshToken);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails.getUsername(), userDetails.getPassword());
+            try{
+                //Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+                // 인증된 사용자로 간주되는 토큰 생성
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            // 새로운 access token 발급
-            String accessToken = tokenProvider.createToken(authentication);
+                // 새로운 access token 발급
+                String accessToken = tokenProvider.createToken(authenticationToken);
 
-            // 새로운 refresh token 발급 (옵셔널)
-            String newRefreshToken = tokenProvider.createRefreshToken(authentication);
+                // 새로운 refresh token 발급 (옵셔널)
+                String newRefreshToken = tokenProvider.createRefreshToken(authenticationToken);
 
-            return ResponseEntity.ok(new TokenDto(accessToken, newRefreshToken));
+                return ResponseEntity.ok(new TokenDto(accessToken, newRefreshToken));
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
         return ResponseEntity.badRequest().build();
     }
