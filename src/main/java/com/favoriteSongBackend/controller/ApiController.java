@@ -3,6 +3,7 @@ package com.favoriteSongBackend.controller;
 import com.favoriteSongBackend.dto.FavoriteSongDto;
 import com.favoriteSongBackend.dto.SearchSongDto;
 import com.favoriteSongBackend.service.ApiService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,8 @@ public class ApiController {
      */
     @PostMapping("/searchSong")
     //노래검색
-    public ResponseEntity<?> songSearch(@RequestBody SearchSongDto.Request request) throws Exception {
-        return ResponseEntity.ok(apiService.songSearch(request));
+    public ResponseEntity<?> songSearch(@RequestBody SearchSongDto.Request request, HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.ok(apiService.songSearch(request, httpServletRequest));
     }
 
     /**
@@ -35,8 +36,8 @@ public class ApiController {
 
     @PostMapping("/searchFavoriteSong")
     //노래검색
-    public ResponseEntity<?> searchFavoriteSong(@RequestBody SearchSongDto.Request request) throws Exception {
-        return ResponseEntity.ok(apiService.songFavoriteSearch(request));
+    public ResponseEntity<?> searchFavoriteSong(@RequestBody SearchSongDto.Request request, HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.ok(apiService.songFavoriteSearch(request, httpServletRequest));
     }
 
     /**
@@ -47,8 +48,8 @@ public class ApiController {
      */
     @PostMapping("/favoriteSong")
     //노래검색
-    public ResponseEntity<?> songFavorite(@RequestBody FavoriteSongDto.Request request) throws Exception {
-        return ResponseEntity.ok(apiService.songFavorite(request));
+    public ResponseEntity<?> songFavorite(@RequestBody FavoriteSongDto.Request request, HttpServletRequest httpServletRequest) throws Exception {
+        return ResponseEntity.ok(apiService.songFavorite(request, httpServletRequest));
     }
 
 }

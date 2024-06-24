@@ -2,12 +2,14 @@ package com.favoriteSongBackend.service;
 
 import com.favoriteSongBackend.dto.*;
 import com.favoriteSongBackend.entity.FavoriteSong;
+import com.favoriteSongBackend.jwt.TokenProvider;
 import com.favoriteSongBackend.repository.FavoriteSongRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +41,10 @@ public class ApiService {
     @Value("${spring.karaoke.release-url}")
     private String releaseUrl;
 
+    private final TokenProvider tokenProvider;
+
     @Transactional
-    public ResponseEntity<?> songSearch(SearchSongDto.Request request) throws Exception {
+    public ResponseEntity<?> songSearch(SearchSongDto.Request request, HttpServletRequest httpServletRequest) throws Exception {
 
         SslContext context = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
         HttpClient httpClient = HttpClient.create().secure(provider -> provider.sslContext(context));
@@ -68,6 +72,7 @@ public class ApiService {
             data = response.getData();
         }
 
+        request.setUserId(tokenProvider.getUsernameFromToken(tokenProvider.getJwtToken(httpServletRequest)));
         List<FavoriteSong> favoriteSongs = favoriteSongRepository.findByUserId(request.getUserId());
 
         // 내가 좋아하는 곡번호 리스트
@@ -86,8 +91,8 @@ public class ApiService {
     }
 
     @Transactional
-    public List<FavoriteListDto.Response> songFavoriteSearch(SearchSongDto.Request request){
-
+    public List<FavoriteListDto.Response> songFavoriteSearch(SearchSongDto.Request request, HttpServletRequest httpServletRequest){
+        request.setUserId(tokenProvider.getUsernameFromToken(tokenProvider.getJwtToken(httpServletRequest)));
         return jpaQueryFactory
             .select(new QFavoriteListDto_Response(
                     favoriteSong.id,
@@ -124,8 +129,8 @@ public class ApiService {
     }
 
     @Transactional
-    public ResponseEntity<?> songFavorite(FavoriteSongDto.Request request){
-
+    public ResponseEntity<?> songFavorite(FavoriteSongDto.Request request, HttpServletRequest httpServletRequest){
+        request.setUserId(tokenProvider.getUsernameFromToken(tokenProvider.getJwtToken(httpServletRequest)));
         Optional<FavoriteSong> existingFavorite = favoriteSongRepository.findByBrandAndNoAndUserId(request.getBrand(), request.getNo(), request.getUserId());
 
         //값이 있으면 삭제처리

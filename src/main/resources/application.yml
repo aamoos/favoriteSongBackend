@@ -25,7 +25,7 @@ jwt:
   header: Authorization
   secret: ${JWT_SECRET}
   token-validity-in-seconds: 86400
-  refresh-token-validity-in-seconds: 1800
+  refresh-token-validity-in-seconds:  1800
 
 logging:
   level:
