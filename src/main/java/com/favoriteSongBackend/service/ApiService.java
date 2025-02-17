@@ -46,45 +46,51 @@ public class ApiService {
     @Transactional
     public ResponseEntity<?> songSearch(SearchSongDto.Request request, HttpServletRequest httpServletRequest) throws Exception {
 
-        SslContext context = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        HttpClient httpClient = HttpClient.create().secure(provider -> provider.sslContext(context));
-        String httpUrl = getRequestUrl(request);
+        SearchSongDto.SongSearchResponseDto response = null;
 
-        log.info("httpUrl = {}", httpUrl);
+        try{
+            SslContext context = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+            HttpClient httpClient = HttpClient.create().secure(provider -> provider.sslContext(context));
+            String httpUrl = getRequestUrl(request);
 
-        // webClient 기본 설정
-        WebClient webClient = WebClient.builder()
-                .baseUrl(httpUrl) // HTTPS 주소로 변경
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
-                .build();
+            log.info("httpUrl = {}", httpUrl);
 
-        SearchSongDto.SongSearchResponseDto response = webClient
-                .get()
-                .uri(httpUrl)
-                .retrieve()
-                .bodyToMono(SearchSongDto.SongSearchResponseDto.class)
-                .block();
+            // webClient 기본 설정
+            WebClient webClient = WebClient.builder()
+                    .baseUrl(httpUrl) // HTTPS 주소로 변경
+                    .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    .build();
 
-        log.info("response = {}", response);
+            response = webClient
+                    .get()
+                    .uri(httpUrl)
+                    .retrieve()
+                    .bodyToMono(SearchSongDto.SongSearchResponseDto.class)
+                    .block();
 
-        List<SearchSongDto.SongResponseDto> data = null;
-        if (response != null) {
-            data = response.getData();
-        }
+            log.info("response = {}", response);
 
-        request.setUserId(tokenProvider.getUsernameFromToken(tokenProvider.getJwtToken(httpServletRequest)));
-        List<FavoriteSong> favoriteSongs = favoriteSongRepository.findByUserId(request.getUserId());
-
-        // 내가 좋아하는 곡번호 리스트
-        List<Long> noList = favoriteSongs.stream()
-                .map(FavoriteSong::getNo)
-                .toList();
-
-        //내가 좋아하는 곡번호 리스트와 조회한 곡 리스트 번호가 같은경우 liked true, else -> false
-        if (data != null) {
-            for (SearchSongDto.SongResponseDto datum : data) {
-                datum.setLiked(noList.contains(datum.getNo()));
+            List<SearchSongDto.SongResponseDto> data = null;
+            if (response != null) {
+                data = response.getData();
             }
+
+            request.setUserId(tokenProvider.getUsernameFromToken(tokenProvider.getJwtToken(httpServletRequest)));
+            List<FavoriteSong> favoriteSongs = favoriteSongRepository.findByUserId(request.getUserId());
+
+            // 내가 좋아하는 곡번호 리스트
+            List<Long> noList = favoriteSongs.stream()
+                    .map(FavoriteSong::getNo)
+                    .toList();
+
+            //내가 좋아하는 곡번호 리스트와 조회한 곡 리스트 번호가 같은경우 liked true, else -> false
+            if (data != null) {
+                for (SearchSongDto.SongResponseDto datum : data) {
+                    datum.setLiked(noList.contains(datum.getNo()));
+                }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
         return ResponseEntity.ok(response);

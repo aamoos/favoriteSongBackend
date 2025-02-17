@@ -52,35 +52,32 @@ public class SecurityConfig {
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
-                .headers((headerConfig) ->
-                        headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable     //h2-console을 위한 설정
-                        )
+                .headers(headerConfig ->
+                        headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // h2-console 허용
                 )
-                .sessionManagement(sessionManagement -> sessionManagement                           //session을 사용하지 않기 때문에 STATELESS로 설정
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))//토큰 사용하므로 csrf disable
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
-//                                .requestMatchers(PathRequest.toH2Console()).permitAll()           //h2 console 관련 security 허용
-                                .requestMatchers("/auth/**", "/oauth2/**", "/sendMail/**").permitAll()
+                                .requestMatchers("/auth/**", "/oauth2/**", "/login/oauth2/code/**", "/sendMail/**").permitAll()
                                 .anyRequest().authenticated()
-//                                .anyRequest().permitAll()
                 )
-                .with(new JwtSecurityConfig(tokenProvider), customizer -> {
-                })
                 .oauth2Login(oauth2 -> oauth2
                         .authorizationEndpoint(authorizationEndpoint -> authorizationEndpoint
                                 .baseUri("/oauth2/authorize")
                                 .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository())
                         )
                         .redirectionEndpoint(redirectionEndpoint -> redirectionEndpoint
-                                .baseUri("/login/oauth2/code/**") // 변경된 부분
+                                .baseUri("/login/oauth2/code/*") // 기본 설정으로 변경
                         )
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler)
-                );
+                )
+                .with(new JwtSecurityConfig(tokenProvider), customizer -> {}); // JWT 설정 적용
 
         return http.build();
     }
