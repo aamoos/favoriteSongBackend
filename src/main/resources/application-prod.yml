@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://dpg-cunf50dsvqrc7392uo1g-a.singapore-postgres.render.com:5432/favoritesong
+    username: favoritesong
+    password: R9YrDZpl1DWGPNdTu9UL7aiB1lgwzXYk
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show_sql: true
