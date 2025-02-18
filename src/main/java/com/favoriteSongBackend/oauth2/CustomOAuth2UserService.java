@@ -1,5 +1,6 @@
 package com.favoriteSongBackend.oauth2;
 
+import com.favoriteSongBackend.entity.Authority;
 import com.favoriteSongBackend.entity.Users;
 import com.favoriteSongBackend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         try {
             saveOrUpdate(attributes, registrationId);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         // SessioUser: 세션에 사용자 정보를 저장하기 위한 DTO 클래스 (개발자가 생성)
@@ -66,12 +68,21 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Users userInfo = attributes.toEntity();
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-        //임시비멀번호, social id 설정
-        userInfo.changePassword(passwordEncoder.encode(alphaNumericString(10)));
-        userInfo.changeActivated(true);
+        Authority authority = Authority.builder()
+                .authorityName("ROLE_USER")
+                .build();
+
+        Users user = Users.builder()
+                .userId(userInfo.getUserId())
+                .password(passwordEncoder.encode(alphaNumericString(10)))
+                .userName(userInfo.getUserName())
+                .authorities(Collections.singleton(authority))
+                .activated(true)
+                .build();
+
 
         //저장
-        userRepository.save(userInfo);
+        userRepository.save(user);
         return userInfo;
     }
 

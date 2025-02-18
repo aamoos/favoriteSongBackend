@@ -2,8 +2,10 @@ server:
   port: 8080
 
 spring:
+  config:
+    import: optional:file:.env[.properties]
   profiles:
-    active: prod
+    active: ${SPRING_PROFILES_ACTIVE}
     include: oauth
   mail:
     host: smtp.gmail.com # 1

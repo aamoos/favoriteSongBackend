@@ -50,7 +50,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(jwtAccessDeniedHandler)
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint) // 401 처리
                 )
                 .headers(headerConfig ->
                         headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // h2-console 허용
@@ -60,7 +60,14 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
-                                .requestMatchers("/auth/**", "/oauth2/**", "/login/oauth2/code/**", "/sendMail/**").permitAll()
+                                .requestMatchers(
+                                        "/auth/**",
+                                        "/oauth2/**",
+                                        "/login/oauth2/code/**",
+                                        "/sendMail/**",
+                                        "/favicon.ico",
+                                        "/error"
+                                ).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
@@ -69,7 +76,7 @@ public class SecurityConfig {
                                 .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository())
                         )
                         .redirectionEndpoint(redirectionEndpoint -> redirectionEndpoint
-                                .baseUri("/login/oauth2/code/*") // 기본 설정으로 변경
+                                .baseUri("/login/oauth2/code/**") // 명확하게 Google 설정
                         )
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
@@ -77,7 +84,8 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler)
                 )
-                .with(new JwtSecurityConfig(tokenProvider), customizer -> {}); // JWT 설정 적용
+                // JWT 필터 적용 순서 조정 (OAuth2 다음)
+                .with(new JwtSecurityConfig(tokenProvider), customizer -> {});
 
         return http.build();
     }
@@ -87,10 +95,10 @@ public class SecurityConfig {
         // 정적 리소스 spring security 대상에서 제외
         return (web) ->
                 web
-                    .ignoring()
-                    .requestMatchers(
-                            PathRequest.toStaticResources().atCommonLocations()
-                    );
+                        .ignoring()
+                        .requestMatchers(
+                                PathRequest.toStaticResources().atCommonLocations()
+                        );
     }
 
 }
